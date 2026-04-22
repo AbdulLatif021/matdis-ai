@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="id" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MatDis AI — Dashboard Mahasiswa</title>
+    <link rel="stylesheet" href="style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body class="app-page">
+    <!-- NAVBAR -->
+    <nav class="navbar" id="main-navbar">
+      <div class="nav-logo">
+        <div class="logo-icon-sm"><i class="fas fa-infinity"></i></div>
+        <span>MatDis <strong>AI</strong></span>
+      </div>
+      <div class="nav-menu" id="nav-menu">
+        <button class="nav-item active" data-page="dashboard" onclick="showPage('dashboard', this)"><i class="fas fa-home"></i> <span>Dashboard</span></button>
+        <button class="nav-item" data-page="peta-topik" onclick="showPage('peta-topik', this)"><i class="fas fa-map"></i> <span>Peta Topik</span></button>
+        <button class="nav-item" data-page="diagnostic" onclick="showPage('diagnostic', this)"><i class="fas fa-stethoscope"></i> <span>Diagnostik</span></button>
+        <button class="nav-item" data-page="profil-penguasaan" onclick="showPage('profil-penguasaan', this)"><i class="fas fa-chart-radar"></i> <span>Profil</span></button>
+        <button class="nav-item" data-page="rekomendasi" onclick="showPage('rekomendasi', this)"><i class="fas fa-robot"></i> <span>Rekomendasi AI</span></button>
+        <button class="nav-item" data-page="latihan" onclick="showPage('latihan', this)"><i class="fas fa-pen-nib"></i> <span>Latihan</span></button>
+      </div>
+      <div class="nav-right">
+        <button class="btn-icon" id="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light">
+          <i class="fas fa-moon" id="theme-icon"></i>
+        </button>
+        <div class="nav-profile" onclick="toggleProfileMenu()">
+          <div class="avatar" id="nav-avatar">M</div>
+          <span id="nav-username">Mahasiswa</span>
+          <i class="fas fa-chevron-down"></i>
+          <div class="profile-dropdown" id="profile-dropdown">
+            <div class="dropdown-header">
+              <div class="avatar-lg" id="drop-avatar">M</div>
+              <div>
+                <p id="drop-name">Nama</p>
+                <small id="drop-email">email</small>
+                <span class="role-badge">Mahasiswa</span>
+              </div>
+            </div>
+            <hr />
+            <button
+              onclick="
+                showPage('profil-penguasaan', null);
+                toggleProfileMenu();
+              "
+            >
+              <i class="fas fa-user"></i> Profil Saya
+            </button>
+            <button onclick="handleLogout()" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Keluar</button>
+          </div>
+        </div>
+        <button class="hamburger" onclick="toggleMobileNav()"><i class="fas fa-bars"></i></button>
+      </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <!-- ===== PAGE: DASHBOARD ===== -->
+      <section class="page active" id="page-dashboard">
+        <div class="page-header">
+          <h2>👋 Selamat Datang, <span id="welcome-name">Mahasiswa</span>!</h2>
+          <p>Ringkasan jalur belajar Matematika Diskrit kamu.</p>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card accent-blue">
+            <div class="stat-icon"><i class="fas fa-trophy"></i></div>
+            <div class="stat-info">
+              <h3 id="stat-score">0</h3>
+              <p>Skor Rata-rata</p>
+            </div>
+          </div>
+          <div class="stat-card accent-green">
+            <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-info">
+              <h3 id="stat-done">0</h3>
+              <p>Latihan Selesai</p>
+            </div>
+          </div>
+          <div class="stat-card accent-purple">
+            <div class="stat-icon"><i class="fas fa-fire"></i></div>
+            <div class="stat-info">
+              <h3 id="stat-streak">0 hari</h3>
+              <p>Streak Belajar</p>
+            </div>
+          </div>
+          <div class="stat-card accent-orange">
+            <div class="stat-icon"><i class="fas fa-star"></i></div>
+            <div class="stat-info">
+              <h3 id="stat-level">Pemula</h3>
+              <p>Level Kamu</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-map-signs"></i> Jalur Belajar</h3>
+            </div>
+            <div class="learning-path" id="learning-path">
+              <!-- Filled by JS -->
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-robot"></i> AI Insight Hari Ini</h3>
+            </div>
+            <div class="ai-insight" id="ai-insight-dashboard">
+              <div class="ai-thinking"><i class="fas fa-spinner fa-spin"></i> AI sedang menganalisis...</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mt-4">
+          <div class="card-header">
+            <h3><i class="fas fa-history"></i> Aktivitas Terakhir</h3>
+          </div>
+          <div id="recent-activity">
+            <p class="empty-state">Belum ada aktivitas. Mulai latihan sekarang!</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== PAGE: PETA TOPIK ===== -->
+      <section class="page" id="page-peta-topik">
+        <div class="page-header">
+          <h2><i class="fas fa-map"></i> Peta Topik</h2>
+          <p>Empat topik utama Matematika Diskrit beserta bank soal dan rekomendasi AI.</p>
+        </div>
+        <div class="topics-grid" id="topics-grid">
+          <!-- Filled by JS -->
+        </div>
+      </section>
+
+      <!-- ===== PAGE: DIAGNOSTIC ===== -->
+      <section class="page" id="page-diagnostic">
+        <div class="page-header">
+          <h2><i class="fas fa-stethoscope"></i> Tes Diagnostik</h2>
+          <p>8 soal dari 4 topik — AI akan menyusun peta kelemahan dan rekomendasi otomatis.</p>
+        </div>
+        <div id="diagnostic-container">
+          <div id="diag-intro" class="diag-intro">
+            <div class="intro-card">
+              <div class="intro-icon"><i class="fas fa-clipboard-list"></i></div>
+              <h3>Tes Diagnostik Awal</h3>
+              <p>Terdiri dari <strong>8 soal pilihan ganda</strong> dari 4 topik utama: Logika, Relasi, Graf, dan Kombinatorik.</p>
+              <ul class="intro-rules">
+                <li><i class="fas fa-clock"></i> Estimasi waktu: 15–20 menit</li>
+                <li><i class="fas fa-brain"></i> AI akan menganalisis hasilmu secara otomatis</li>
+                <li><i class="fas fa-chart-bar"></i> Kamu mendapat peta kelemahan personal</li>
+                <li><i class="fas fa-road"></i> Jalur belajar akan disesuaikan</li>
+              </ul>
+              <button class="btn-primary" onclick="startDiagnostic()"><i class="fas fa-play"></i> Mulai Tes</button>
+            </div>
+          </div>
+
+          <div id="diag-quiz" class="diag-quiz" style="display: none">
+            <div class="quiz-header">
+              <div class="quiz-progress-info">
+                <span id="diag-q-num">Soal 1 dari 8</span>
+                <div class="topic-tag" id="diag-topic-tag"></div>
+              </div>
+              <div class="progress-bar-wrap">
+                <div class="progress-bar-fill" id="diag-progress" style="width: 0%"></div>
+              </div>
+            </div>
+            <div class="quiz-body">
+              <p class="question-text" id="diag-question"></p>
+              <div class="options-list" id="diag-options"></div>
+            </div>
+            <div class="quiz-footer">
+              <button class="btn-outline" onclick="prevDiagQ()"><i class="fas fa-arrow-left"></i> Sebelumnya</button>
+              <button class="btn-primary" onclick="nextDiagQ()" id="diag-next-btn">Selanjutnya <i class="fas fa-arrow-right"></i></button>
+            </div>
+          </div>
+
+          <div id="diag-result" class="diag-result" style="display: none">
+            <!-- Filled by JS after submission -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== PAGE: PROFIL PENGUASAAN ===== -->
+      <section class="page" id="page-profil-penguasaan">
+        <div class="page-header">
+          <h2><i class="fas fa-chart-area"></i> Profil Penguasaan</h2>
+          <p>Visualisasi tingkat penguasaan kamu per topik secara real-time.</p>
+        </div>
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-spider"></i> Radar Topik</h3>
+            </div>
+            <div class="radar-wrap">
+              <canvas id="radar-chart" width="350" height="350"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-list-ol"></i> Detail Per Topik</h3>
+            </div>
+            <div id="topic-detail-list">
+              <!-- Filled by JS -->
+            </div>
+            <div class="card-header mt-4" style="margin-top: 1.5rem">
+              <h3><i class="fas fa-user-circle"></i> Info Profil</h3>
+            </div>
+            <div class="profile-info" id="profile-info-box">
+              <!-- Filled by JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== PAGE: REKOMENDASI AI ===== -->
+      <section class="page" id="page-rekomendasi">
+        <div class="page-header">
+          <h2><i class="fas fa-robot"></i> Rekomendasi AI</h2>
+          <p>Analisis mendalam dan rencana belajar personal berdasarkan profil penguasaanmu.</p>
+        </div>
+        <div id="ai-rec-container">
+          <div class="ai-loading-card" id="ai-rec-loading">
+            <div class="ai-pulse"><i class="fas fa-brain"></i></div>
+            <h3>AI sedang menganalisis profil kamu...</h3>
+            <p>Ini hanya membutuhkan beberapa detik.</p>
+          </div>
+          <div id="ai-rec-content" style="display: none">
+            <!-- Filled by JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== PAGE: LATIHAN ===== -->
+      <section class="page" id="page-latihan">
+        <div class="page-header">
+          <h2><i class="fas fa-pen-nib"></i> Latihan Soal</h2>
+          <p>Pilih topik dan latih kemampuanmu dengan soal-soal pilihan.</p>
+        </div>
+
+        <div id="latihan-home">
+          <div class="topics-grid-sm">
+            <div class="topic-card-sm" onclick="startLatihan('logika')">
+              <div class="topic-icon-sm blue"><i class="fas fa-project-diagram"></i></div>
+              <h4>Logika</h4>
+              <p>20 soal tersedia</p>
+              <button class="btn-sm btn-blue">Mulai Latihan</button>
+            </div>
+            <div class="topic-card-sm" onclick="startLatihan('relasi')">
+              <div class="topic-icon-sm green"><i class="fas fa-link"></i></div>
+              <h4>Relasi & Fungsi</h4>
+              <p>20 soal tersedia</p>
+              <button class="btn-sm btn-green">Mulai Latihan</button>
+            </div>
+            <div class="topic-card-sm" onclick="startLatihan('graf')">
+              <div class="topic-icon-sm purple"><i class="fas fa-share-alt"></i></div>
+              <h4>Teori Graf</h4>
+              <p>20 soal tersedia</p>
+              <button class="btn-sm btn-purple">Mulai Latihan</button>
+            </div>
+            <div class="topic-card-sm" onclick="startLatihan('kombinatorik')">
+              <div class="topic-icon-sm orange"><i class="fas fa-dice"></i></div>
+              <h4>Kombinatorik</h4>
+              <p>20 soal tersedia</p>
+              <button class="btn-sm btn-orange">Mulai Latihan</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="latihan-quiz" style="display: none">
+          <div class="quiz-header">
+            <button class="btn-outline btn-sm" onclick="backToLatihanHome()"><i class="fas fa-arrow-left"></i> Kembali</button>
+            <div class="quiz-progress-info" style="flex: 1; margin-left: 1rem">
+              <span id="lat-topic-title">Logika</span> —
+              <span id="lat-q-num">Soal 1 dari 10</span>
+            </div>
+            <div class="progress-bar-wrap" style="width: 200px">
+              <div class="progress-bar-fill" id="lat-progress" style="width: 0%"></div>
+            </div>
+          </div>
+          <div class="quiz-body">
+            <p class="question-text" id="lat-question"></p>
+            <div class="options-list" id="lat-options"></div>
+            <div id="lat-feedback" class="feedback-box" style="display: none"></div>
+          </div>
+          <div class="quiz-footer">
+            <button class="btn-primary" onclick="nextLatihanQ()" id="lat-next-btn" style="display: none">Soal Berikutnya <i class="fas fa-arrow-right"></i></button>
+          </div>
+        </div>
+
+        <div id="latihan-result" style="display: none">
+          <!-- Filled by JS -->
+        </div>
+      </section>
+    </main>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/auth-guard.js"></script>
+    <script src="js/questions.js"></script>
+    <script src="js/dashboard-mhs.js"></script>
+  </body>
+</html>

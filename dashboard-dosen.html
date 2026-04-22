@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="id" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MatDis AI — Dashboard Dosen</title>
+    <link rel="stylesheet" href="style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body class="app-page">
+    <!-- NAVBAR DOSEN -->
+    <nav class="navbar" id="main-navbar">
+      <div class="nav-logo">
+        <div class="logo-icon-sm"><i class="fas fa-infinity"></i></div>
+        <span>MatDis <strong>AI</strong></span>
+        <span class="role-badge-nav">Dosen</span>
+      </div>
+      <div class="nav-menu" id="nav-menu">
+        <button class="nav-item active" data-page="dosen-dashboard" onclick="showDosenPage('dosen-dashboard', this)"><i class="fas fa-chalkboard-teacher"></i> <span>Dashboard Kelas</span></button>
+        <button class="nav-item" data-page="dosen-monitor" onclick="showDosenPage('dosen-monitor', this)"><i class="fas fa-eye"></i> <span>Monitor Mahasiswa</span></button>
+        <button class="nav-item" data-page="dosen-aktivitas" onclick="showDosenPage('dosen-aktivitas', this)"><i class="fas fa-stream"></i> <span>Aktivitas</span></button>
+      </div>
+      <div class="nav-right">
+        <button class="btn-icon" id="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light">
+          <i class="fas fa-moon" id="theme-icon"></i>
+        </button>
+        <div class="nav-profile" onclick="toggleProfileMenu()">
+          <div class="avatar dosen-avatar" id="nav-avatar">D</div>
+          <span id="nav-username">Dosen</span>
+          <i class="fas fa-chevron-down"></i>
+          <div class="profile-dropdown" id="profile-dropdown">
+            <div class="dropdown-header">
+              <div class="avatar-lg dosen-avatar" id="drop-avatar">D</div>
+              <div>
+                <p id="drop-name">Nama Dosen</p>
+                <small id="drop-email">email</small>
+                <span class="role-badge">Dosen</span>
+              </div>
+            </div>
+            <hr />
+            <button onclick="handleLogout()" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Keluar</button>
+          </div>
+        </div>
+        <button class="hamburger" onclick="toggleMobileNav()"><i class="fas fa-bars"></i></button>
+      </div>
+    </nav>
+
+    <main class="main-content">
+      <!-- ===== PAGE: DASHBOARD KELAS ===== -->
+      <section class="page active" id="page-dosen-dashboard">
+        <div class="page-header">
+          <h2><i class="fas fa-chalkboard-teacher"></i> Dashboard Kelas</h2>
+          <p>Monitor performa seluruh mahasiswa dan temukan topik yang membutuhkan intervensi.</p>
+        </div>
+
+        <!-- Stats Kelas -->
+        <div class="stats-grid">
+          <div class="stat-card accent-blue">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <div class="stat-info">
+              <h3 id="stat-total-mhs">0</h3>
+              <p>Total Mahasiswa</p>
+            </div>
+          </div>
+          <div class="stat-card accent-green">
+            <div class="stat-icon"><i class="fas fa-check-double"></i></div>
+            <div class="stat-info">
+              <h3 id="stat-active-mhs">0</h3>
+              <p>Sudah Diagnostik</p>
+            </div>
+          </div>
+          <div class="stat-card accent-orange">
+            <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+            <div class="stat-info">
+              <h3 id="stat-weak-topic">–</h3>
+              <p>Topik Terlemah Kelas</p>
+            </div>
+          </div>
+          <div class="stat-card accent-purple">
+            <div class="stat-icon"><i class="fas fa-star"></i></div>
+            <div class="stat-info">
+              <h3 id="stat-avg-score">0%</h3>
+              <p>Rata-rata Skor Kelas</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chart Topik Kelas -->
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-chart-bar"></i> Rata-rata Skor per Topik</h3>
+            </div>
+            <canvas id="class-bar-chart" height="250"></canvas>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-robot"></i> AI Intervensi Rekomendasi</h3>
+            </div>
+            <div id="ai-intervensi" class="ai-insight">
+              <div class="ai-thinking"><i class="fas fa-spinner fa-spin"></i> AI sedang menganalisis data kelas...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Tandai Topik Lemah -->
+        <div class="card mt-4">
+          <div class="card-header">
+            <h3><i class="fas fa-exclamation-circle"></i> Topik yang Memerlukan Perhatian</h3>
+          </div>
+          <div id="weak-topics-list" class="weak-topics-container">
+            <div class="ai-thinking"><i class="fas fa-spinner fa-spin"></i> Memuat data...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== PAGE: MONITOR MAHASISWA ===== -->
+      <section class="page" id="page-dosen-monitor">
+        <div class="page-header">
+          <h2><i class="fas fa-eye"></i> Monitor Mahasiswa</h2>
+          <p>Pantau detail profil penguasaan setiap mahasiswa.</p>
+        </div>
+        <div class="search-bar">
+          <i class="fas fa-search"></i>
+          <input type="text" id="search-mhs" placeholder="Cari nama mahasiswa..." oninput="filterMahasiswa(this.value)" />
+        </div>
+        <div id="mahasiswa-table-wrap" class="table-wrap">
+          <table class="data-table" id="mahasiswa-table">
+            <thead>
+              <tr>
+                <th>Nama</th>
+                <th>NIM</th>
+                <th>Logika</th>
+                <th>Relasi</th>
+                <th>Graf</th>
+                <th>Kombinatorik</th>
+                <th>Rata-rata</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="mahasiswa-tbody">
+              <tr>
+                <td colspan="8" class="text-center">Memuat data...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ===== PAGE: AKTIVITAS ===== -->
+      <section class="page" id="page-dosen-aktivitas">
+        <div class="page-header">
+          <h2><i class="fas fa-stream"></i> Aktivitas Terbaru</h2>
+          <p>AI memantau siapa saja yang login, menyelesaikan kuis, dan nilainya.</p>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-clock"></i> Log Aktivitas Real-time</h3>
+              <span class="live-badge"><i class="fas fa-circle"></i> Live</span>
+            </div>
+            <div id="activity-log" class="activity-log">
+              <div class="ai-thinking"><i class="fas fa-spinner fa-spin"></i> Memuat aktivitas...</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-chart-pie"></i> Distribusi Nilai</h3>
+            </div>
+            <canvas id="score-dist-chart" height="250"></canvas>
+          </div>
+        </div>
+
+        <div class="card mt-4">
+          <div class="card-header">
+            <h3><i class="fas fa-medal"></i> Leaderboard Mahasiswa</h3>
+          </div>
+          <div id="leaderboard" class="leaderboard-list">
+            <div class="ai-thinking"><i class="fas fa-spinner fa-spin"></i> Memuat...</div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/auth-guard.js"></script>
+    <script src="js/dashboard-dosen.js"></script>
+  </body>
+</html>
