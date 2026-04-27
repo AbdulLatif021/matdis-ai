@@ -15,9 +15,13 @@ function initDosenDashboard(data) {
 
 // ── Load semua data mahasiswa ──
 async function loadAllMahasiswaData() {
-  const snap = await db.ref("users").orderByChild("role").equalTo("mahasiswa").once("value");
+  // Ambil semua users lalu filter di client (hindari butuh index Firebase)
+  const snap = await db.ref("users").once("value");
   allMahasiswa = [];
-  snap.forEach((child) => allMahasiswa.push(child.val()));
+  snap.forEach((child) => {
+    const val = child.val();
+    if (val && val.role === "mahasiswa") allMahasiswa.push(val);
+  });
 
   document.getElementById("stat-total-mhs").textContent = allMahasiswa.length;
   const diagDone = allMahasiswa.filter((m) => m.diagnostic_done).length;
